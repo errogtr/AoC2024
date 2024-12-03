@@ -6,7 +6,7 @@ with open("day01/data") as f:
 
 # ==== PART 1 ====
 left_locs, right_locs = zip(*locations)
-print(sum(abs(l-r) for l, r in zip(sorted(left_locs), sorted(right_locs))))
+print(sum(abs(l - r) for l, r in zip(sorted(left_locs), sorted(right_locs))))
 
 # ==== PART 2 ====
 c = Counter(right_locs)
