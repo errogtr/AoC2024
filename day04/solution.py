@@ -1,6 +1,7 @@
 from itertools import product
 import re
 
+
 xmas = re.compile(r'(?=(XMAS|SAMX))')
 mas = re.compile(r'(?=(MAS|SAM))')
 
@@ -16,6 +17,7 @@ with open("day04/data") as f:
 
 Ly = len(wordsearch)
 Lx = len(wordsearch[0])
+
 
 # ==== PART 1 ====
 horizontal = " ".join(wordsearch)
