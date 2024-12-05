@@ -11,6 +11,7 @@ for r in rules.split():
     rules_dict[a].add(b)
 
 
+# ==== PART 1 ====
 middle = 0
 for update in updates.split():
     pages = update.split(",")
@@ -22,6 +23,7 @@ for update in updates.split():
 print(middle)
 
 
+# ==== PART 2 ====
 middle = -middle
 for update in updates.split():
     pages = update.split(",")
