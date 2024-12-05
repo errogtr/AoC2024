@@ -3,7 +3,7 @@ import re
 
 
 xmas = re.compile(r'(?=(XMAS|SAMX))')
-mas = re.compile(r'(?=(MAS|SAM))')
+mas = re.compile(r'MAS|SAM')
 
 
 def get_diagonal(schema):
