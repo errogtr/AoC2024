@@ -1,5 +1,6 @@
 from itertools import product
 import re
+from time import time
 
 
 # positive lookahead for overlapping XMAS/SAMX substrings
@@ -34,14 +35,16 @@ print(len(xmas.findall(full_schema)))
 
 
 # ==== PART 2 ====
-directions = [
-    [(0, 0), (1, 1), (2, 2)], # 3x3 block diagonal
-    [(0, 2), (1, 1), (2, 0)], # 3x3 block antidiagonal
-]
 count = 0
-for x, y in product(range(Lx-2), range(Ly-2)):
-    diagonals = [
-        "".join(wordsearch[y + dy][x + dx] for dx, dy in d) for d in directions
-        ]
-    count += all(mas.match("".join(l)) is not None for l in diagonals)
+for x, y in product(range(1, Lx-1), range(1, Ly-1)):
+    if wordsearch[y][x] == "A":
+        diagonal = "".join(
+            wordsearch[y-1][x-1] + wordsearch[y][x] + wordsearch[y+1][x+1]
+        )
+        antidiagonal = "".join(
+            wordsearch[y-1][x+1] + wordsearch[y][x] + wordsearch[y+1][x-1]
+        )
+        count += (
+            (mas.match(diagonal) and mas.match(antidiagonal)) is not None
+        )
 print(count)
