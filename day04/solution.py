@@ -2,7 +2,8 @@ from itertools import product
 import re
 
 
-xmas = re.compile(r'(?=(XMAS|SAMX))')
+# positive lookahead for overlapping XMAS/SAMX substrings
+xmas = re.compile(r'(?=(XMAS|SAMX))')  
 mas = re.compile(r'MAS|SAM')
 
 
