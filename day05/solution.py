@@ -1,39 +1,36 @@
 from collections import defaultdict
-from itertools import combinations
+from functools import cmp_to_key, partial
 
 
 def parse(data):
     r, u = data.split("\n\n")
 
     rules = defaultdict(set)
-    for r in r.split():
-        a, b = r.split("|")
+    for single_rule in r.split():
+        a, b = single_rule.split("|")
         rules[a].add(b)
+    
+    updates = [l.split(",") for l in u.split()]
+    return rules, updates
 
-    return rules, u.split()
+
+def cmp(pages, rules, a, b):
+    return len(pages & rules[b]) - len(pages & rules[a]) 
 
 
 def get_middle(update):
-    pages = update.split(",")
-    return int(pages[len(pages)//2])
+    return int(update[len(update)//2])
 
 
 with open("day05/data") as f:
     rules, updates = parse(f.read())
 
-
-ordered = list()
-for update in updates:
-    pages = update.split(",")
-    for i, j in combinations(range(len(pages)), 2):
-        p, q = pages[i], pages[j]
-        if q not in rules[p]:
-            pages[i], pages[j] = pages[j], pages[i]
-    ordered.append(",".join(pages))
-
+sorted_updates = [
+    sorted(u, key=cmp_to_key(partial(cmp, set(u), rules))) for u in updates
+    ]
 
 # ==== PART 1 ====
-print(sum(get_middle(o) for u, o in zip(updates, ordered) if u == o))
+print(sum(get_middle(u) for u, s in zip(updates, sorted_updates) if u == s))
 
 # ==== PART 2 ====
-print(sum(get_middle(o) for u, o in zip(updates, ordered) if u != o))
+print(sum(get_middle(u) for u, s in zip(updates, sorted_updates) if u != s))
