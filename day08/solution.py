@@ -2,16 +2,11 @@ from collections import defaultdict
 from itertools import combinations, count
 
 
-def coords(x0, y0, dx, dy, k):
-    x = x0 + k * (-1)**(dx < 0) * abs(dx)
-    y = y0 + k * (-1)**(dy < 0) * abs(dy)
-    return x, y
-
-
 def line(x0, y0, dx, dy, Lx, Ly):
     points = list()
     for k in count(1):
-        x, y = coords(x0, y0, dx, dy, k)
+        x = x0 + k * (-1)**(dx < 0) * abs(dx)
+        y = y0 + k * (-1)**(dy < 0) * abs(dy)
         if x < 0 or x >= Lx or y < 0 or y >= Ly:
             break
         points.append((x, y))
