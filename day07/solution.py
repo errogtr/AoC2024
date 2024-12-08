@@ -1,4 +1,4 @@
-from tqdm import tqdm
+from operator import add, mul
 
 
 def parse(calibration):
@@ -6,70 +6,29 @@ def parse(calibration):
     return int(test), [int(x) for x in nums.split()]
 
 
-def build_tree(test, nums):
+def search(test, nums, ops):
     if len(nums) == 1:
         return nums[0] == test
     
-    root, operand, *others = nums
+    x, y, *others = nums
 
-    if root > test:
+    if x > test:
         return False
 
-    added = root + operand
-    multiplied = root * operand
-    return {
-        root: {
-            added: build_tree(test, [added] + others),
-            multiplied: build_tree(test, [multiplied] + others),
-            }
-        }
+    res = [op(x, y) for op in ops]
+    return any(search(test, [r] + others, ops) for r in res)
 
 
-def build_tree_(test, nums):
-    if len(nums) == 1:
-        return nums[0] == test
-    
-    root, operand, *others = nums
-
-    if root > test:
-        return False
-    
-    added = root + operand
-    multiplied = root * operand
-    concat = int(f"{root}{operand}")
-    return {
-        root: {
-            added: build_tree_(test, [added] + others),
-            multiplied: build_tree_(test, [multiplied] + others),
-            concat: build_tree_(test, [concat] + others)
-            }
-        }
-
-
-def search(tree):
-    if isinstance(tree, bool):
-        return tree
-
-    return any(search(n) for n in tree.values())
+def concat(x, y):
+    return int(f"{x}{y}")
 
 
 with open("day07/data") as f:
-    calibrations = f.read().splitlines()
+    calibrations = [parse(l) for l in f.read().splitlines()]
 
 
-total = 0
-for calibration in tqdm(calibrations):
-    test, nums = parse(calibration)
-    tree = build_tree(test, nums)
-    if search(tree):
-        total += test
-print(total)
+# ==== PART 1 ====
+print(sum(test for test, nums in calibrations if search(test, nums, (add, mul))))
 
-
-total = 0
-for calibration in tqdm(calibrations):
-    test, nums = parse(calibration)
-    tree = build_tree_(test, nums)
-    if search(tree):
-        total += test
-print(total)
+# ==== PART 2 ====
+print(sum(test for test, nums in calibrations if search(test, nums, (add, mul, concat))))
