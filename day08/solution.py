@@ -1,16 +1,5 @@
 from collections import defaultdict
-from itertools import combinations, count
-
-
-def line(x0, y0, dx, dy, Lx, Ly):
-    points = list()
-    for k in count(1):
-        x = x0 + k * (-1)**(dx < 0) * abs(dx)
-        y = y0 + k * (-1)**(dy < 0) * abs(dy)
-        if x < 0 or x >= Lx or y < 0 or y >= Ly:
-            break
-        points.append((x, y))
-    return points
+from itertools import combinations
 
 
 antennas = defaultdict(set)
@@ -31,15 +20,15 @@ for positions in antennas.values():
     for (x1, y1), (x2, y2) in combinations(positions, 2):
         dx, dy = x2 - x1, y2 - y1
 
-        points_pos = line(x1, y1, dx, dy, Lx, Ly)
-        if len(points_pos) > 1:
-            antinodes.add(points_pos[1])
-        
-        points_neg = line(x2, y2, -dx, -dy, Lx, Ly)
-        if len(points_neg) > 1:
-            antinodes.add(points_neg[1])
+        for (x, y, dir) in ((x1, y1, 1), (x2, y2, -1)):
+            ax = x + dir * (-1) ** (dx > 0) * abs(dx)
+            ay = y + dir * (-1) ** (dy > 0) * abs(dy)
+            if 0 <= ax < Lx and 0 <= ay < Ly:
+                antinodes.add((ax, ay))
 
-        harmonic |= set(points_neg) | set(points_pos)
+            while 0 <= x < Lx and 0 <= y < Ly:
+                harmonic.add((x, y))
+                x, y = x + dir * dx, y + dir * dy
 
 
 # ==== PART 1 ====
