@@ -1,5 +1,3 @@
-from itertools import product
-
 from tqdm import tqdm
 
 
@@ -51,10 +49,7 @@ print(len(visited))
 
 
 c = 0
-for ox, oy in tqdm(product(range(Lx), range(Ly))):
-    if (ox, oy) in obstacles:
-        continue
-
+for ox, oy in tqdm(visited):
     obstacles.add((ox, oy))
     visited = {(start, UP)}
     (x, y), (dx, dy) = start, UP
