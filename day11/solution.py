@@ -12,9 +12,9 @@ def count_stones(stones):
             if digits % 2:  # number of digits is odd
                 blink[2024 * stone] += count
             else:  # number of digits is even
-                m = 10**(digits // 2)
-                blink[stone // m] += count
-                blink[stone % m] += count
+                left, right = divmod(stone, 10**(digits // 2))
+                blink[left] += count
+                blink[right] += count
     return blink       
 
 
