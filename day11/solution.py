@@ -21,13 +21,8 @@ def count_stones(stones):
 with open("day11/data") as f:
     stones = Counter(int(x) for x in f.read().split())
 
-# ==== PART 1 ====
-for _ in range(25):
-    stones = count_stones(stones)
-print(stones.total())
-
-
-# ==== PART 2 ====
-for _ in range(50):
-    stones = count_stones(stones)
-print(stones.total())
+# ==== PART 1 & 2====
+for n in (25, 50):
+    for _ in range(n):
+        stones = count_stones(stones)
+    print(stones.total())
