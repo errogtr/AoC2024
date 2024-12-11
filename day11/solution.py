@@ -19,10 +19,7 @@ def count_stones(stones):
 
 
 with open("day11/data") as f:
-    stones = [int(x) for x in f.read().split()]
-
-
-stones = Counter(stones)
+    stones = Counter(int(x) for x in f.read().split())
 
 # ==== PART 1 ====
 for _ in range(25):
