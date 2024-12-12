@@ -1,5 +1,5 @@
 from collections import Counter
-from math import floor, log
+from math import log10
 
 
 def count_stones(stones):
@@ -7,14 +7,13 @@ def count_stones(stones):
     for stone, count in stones.items():
         if stone == 0:
             blink[1] += count
-        else:
-            digits = floor(log(stone, 10)) + 1
-            if digits % 2:  # number of digits is odd
-                blink[2024 * stone] += count
-            else:  # number of digits is even
-                left, right = divmod(stone, 10**(digits // 2))
-                blink[left] += count
-                blink[right] += count
+        elif (digits := int(log10(stone)) + 1) % 2 == 0:
+            # number of digits is even  
+            left, right = divmod(stone, 10**(digits // 2))
+            blink[left] += count
+            blink[right] += count
+        else:  # number of digits is odd
+            blink[2024 * stone] += count
     return blink       
 
 
