@@ -13,7 +13,7 @@ def win(a1, b1, c1, a2, b2, c2, add=0):
 
 
 claw_machines = list()
-with open("day13/data") as f:
+with open("day13/example") as f:
     for instructions in f.read().split("\n\n"):
         A_button, B_button, prize = instructions.splitlines()
         Ax, Ay = map(int, re.findall(r"\d+", A_button))
