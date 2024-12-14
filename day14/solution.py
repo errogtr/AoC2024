@@ -37,8 +37,7 @@ for i in range(1, min(W, H)):
     area = (b - a) * (d - c)   # target region area
     densities = [sum(a<=x<=b and c<=y<=d for x, y in sim) / area for sim in simulations]
     t, _ = max(zip(T, densities), key=itemgetter(1))
-    print(i)
     if t == tree_time:
-        print(t)
         break
     tree_time = t
+print(tree_time)
