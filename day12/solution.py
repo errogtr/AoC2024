@@ -37,13 +37,20 @@ def is_corner(x, y, dx1, dy1, dx2, dy2, region):
         -   both x's are different from A (external corner)
         -   both x's equal A and y is different from A (internal corner)
     """
-    nn1 = x + dx1, y + dy1
-    nn2 = x + dx2, y + dy2
-    diag = x + dx1 + dx2, y + dy1 + dy2
+
+    nn1 = x + dx1, y + dy1  # first nearest neighbor
+    nn2 = x + dx2, y + dy2  # second nearest neighbor
+    diag = x + dx1 + dx2, y + dy1 + dy2  # diagonal between nearest neighbors
+
+    # external corner
     if nn1 not in region and nn2 not in region:
         return True
+    
+    # internal corner
     if nn1 in region and nn2 in region and diag not in region:
         return True
+    
+    # not a corner
     return False
 
 
@@ -55,24 +62,33 @@ with open("day12/data") as f:
 
 
 # ==== PART 2 ====
-price, regions = 0, list()  # [{(x, y): num_nn)]
+price = 0 
+regions = list()  # [{(x, y)}]
 visited = set()  
 for (x, y), plant_xy in garden.items():
     if (x, y) in visited:
         continue
+
     curr_xy = {(x, y)}
-    region = dict()
+    region = set()
+    perimeter = 0
     while curr_xy:
         curr_x, curr_y = curr_xy.pop()
-        region[(curr_x, curr_y)] = 4  # start with 4 nn in same region
-        visited.add((curr_x, curr_y))
+        region.add((curr_x, curr_y))
+        
+        # get nearest neighbors of current location, if in the same region
         nn_xy = get_nn(curr_x, curr_y, plant_xy, garden)
+
+        # each nearest neighbor removes an edge to block
+        perimeter += 4 - len(nn_xy)
+
         for nn_x, nn_y in nn_xy:
-            region[(curr_x, curr_y)] -= 1  # if not in region, lower nn by 1
             if (nn_x, nn_y) not in visited:
                 curr_xy.add((nn_x, nn_y))
+        
+        visited.add((curr_x, curr_y))
 
-    price += len(region) * sum(region.values())
+    price += len(region) * perimeter
     regions.append(region)
 
 print(price)
