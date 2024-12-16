@@ -1,3 +1,4 @@
+from collections import defaultdict
 from heapq import heappop, heappush
 
 W, S, E, N = (1, 0), (0, 1), (-1, 0), (0, -1)
@@ -23,20 +24,43 @@ with open("day16/data") as f:
 start = next((x, y) for (x, y), val in maze.items() if val == "S")
 end = next((x, y) for (x, y), val in maze.items() if val == "E")
 
+
 curr_p = start
 dp = (-1, 0)
-visited = {curr_p}
+visited = [curr_p]
 queue = [(0, curr_p, dp)]
+scores = list()
+comes_from = defaultdict(list)
+comes_from[(*start,  0)] = None
+crossroads = list()
 while queue:
     score, (curr_x, curr_y), (curr_dx, curr_dy) = heappop(queue)
 
     if (curr_x, curr_y) == end:
-        break
+        scores.append(score)
     
     nn = get_nn(score, curr_x, curr_y, curr_dx, curr_dy)
-    for next_score, (next_x, next_y), (next_dx, next_dy) in nn:    
-        if (next_x, next_y) not in visited:
-            heappush(queue, (next_score, (next_x, next_y), (next_dx, next_dy)))
-            visited.add((next_x, next_y))
 
-print(score)
+    if len(nn) > 2:
+        crossroads.append((curr_x, curr_y))
+
+    for next_score, (next_x, next_y), (next_dx, next_dy) in nn: 
+        comes_from[(next_x, next_y, next_score)].append((curr_x, curr_y, score))   
+        if (next_x, next_y) not in visited or (next_x, next_y) in crossroads:
+            heappush(queue, (next_score, (next_x, next_y), (next_dx, next_dy)))
+            visited.append((next_x, next_y))
+
+
+print(min(scores))
+
+
+queue = [(*end, min(scores))]
+paths = {end}
+while queue:
+    p = queue.pop(0)
+    prev = comes_from[p]
+    if prev:
+        pts = {(x, y) for x, y, _ in prev}
+        paths |= pts
+        queue += prev
+print(len(paths))
