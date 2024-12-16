@@ -18,7 +18,7 @@ def get_nn(score, x, y, dx, dy):
 
 
 maze = dict()
-with open("day16/example") as f:
+with open("day16/data") as f:
     for y, row in enumerate(f.read().splitlines()):
         for x, val in enumerate(row):
             maze[(x, y)] = val
