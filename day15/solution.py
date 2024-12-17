@@ -69,23 +69,19 @@ for dz in dirs:
     move = False
     boxes = [curr_z]
     queue = [curr_z]
-    visited = {curr_z}
     while queue:
         w = queue.pop(0) + dz
-        if w in visited:
+        if w in boxes:
             continue
         match warehouse[w]:
             case Tile.LBOX:
                 boxes.extend([w, w+1])
                 queue += [w, w+1]
-                visited |= {w, w+1}
             case Tile.RBOX:
                 boxes.extend([w, w-1])
                 queue += [w, w-1]
-                visited |= {w, w-1}
             case Tile.EMPTY:
                 move = True
-                visited.add(w)
             case Tile.WALL:
                 move = False
                 break
