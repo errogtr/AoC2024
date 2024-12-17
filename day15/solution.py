@@ -1,57 +1,105 @@
-from copy import copy
+class Tile:
+    BOX = "O"
+    LBOX = "["
+    RBOX = "]"
+    EMPTY = "."
+    ROBOT = "@"
+    WALL = "#"
+
+DIRS = {"^": -1j, ">": 1, "<": -1, "v": 1j}
 
 
-DIRS = {
-    "^": complex(0, -1),
-    ">": complex(1, 0),
-    "<": complex(-1, 0),
-    "v": complex(0, 1)
-}
+def get_warehouse(grid):
+    warehouse = dict()
+    for y, row in enumerate(grid.splitlines()):
+        for x, c in enumerate(row):
+            warehouse[x + y * 1j] = c
+    return warehouse
 
 
-def move(curr_z, dirs, boxes, walls):
-    for dz in dirs:
-        next_z = curr_z + dz
-        
-        # do nothing if it hits a wall
-        if next_z in walls:
-            continue
-        
-        # move all boxes in same x/y direction if it hits a box
-        if next_z in boxes:
-            w = next_z
-            block = [next_z]
-            while w + dz in boxes:
-                w += dz
-                block.append(w)
-            
-            if block[-1] + dz in walls:
-                continue
-
-            for box in reversed(block):
-                boxes.remove(box)
-                boxes.add(box + dz)
-
-        curr_z = next_z
-    return boxes
+def double_warehouse(grid):
+    warehouse = dict()
+    for y, row in enumerate(grid.splitlines()):
+        for x, c in enumerate(row):
+            if c == Tile.BOX:
+                warehouse[2*x + y * 1j] = Tile.LBOX
+                warehouse[2*x + 1 + y * 1j] = Tile.RBOX
+            elif c == Tile.ROBOT:
+                warehouse[2*x + y * 1j] = Tile.ROBOT
+                warehouse[2*x + 1 + y * 1j] = Tile.EMPTY
+            else:  # c in "#."
+                warehouse[2*x + y * 1j] = warehouse[2*x + 1 + y * 1j] = c
+    return warehouse
 
 
 with open("day15/data") as f:
     grid, moves = f.read().split("\n\n")
-    dirs = [DIRS[move] for move in moves if move != "\n"]
 
-boxes = set()
-walls = set()
-for y, row in enumerate(grid.splitlines()):
-    for x, c in enumerate(row):
-        if c == "#":
-            walls.add(complex(x, y))
-        if c == "O":
-            boxes.add(complex(x, y))
-        if c == "@":
-            curr_z = complex(x, y)
+dirs = [DIRS[move] for move in moves if move != "\n"]
 
 
 # ==== PART 1 ====
-moved_boxes = move(curr_z, dirs, copy(boxes), copy(walls))
-print(sum(100 * box.imag + box.real for box in moved_boxes))
+warehouse = get_warehouse(grid)
+curr_z = next(c for c, val in warehouse.items() if val == Tile.ROBOT)
+for dz in dirs:
+    move = False
+    w = curr_z
+    boxes = list()
+    while True:
+        w += dz
+        match warehouse[w]:
+            case Tile.BOX:
+                boxes.append(w)
+            case Tile.EMPTY:
+                move = True
+                break
+            case Tile.WALL:
+                break
+ 
+    if move:
+        if boxes:
+            warehouse[w] = Tile.BOX
+        warehouse[curr_z + dz] = warehouse[curr_z]
+        warehouse[curr_z] = Tile.EMPTY
+        curr_z += dz
+    
+print(int(sum(100 * z.imag + z.real for z in warehouse if warehouse[z] == Tile.BOX)))
+
+
+# ==== PART 2 ====
+warehouse = double_warehouse(grid)
+curr_z = next(c for c, val in warehouse.items() if val == Tile.ROBOT)
+for dz in dirs:
+    move = False
+    boxes = [curr_z]
+    queue = [curr_z]
+    visited = {curr_z}
+    while queue:
+        w = queue.pop(0) + dz
+        if w in visited:
+            continue
+        match warehouse[w]:
+            case Tile.LBOX:
+                boxes.extend([w, w+1])
+                queue += [w, w+1]
+                visited |= {w, w+1}
+            case Tile.RBOX:
+                boxes.extend([w, w-1])
+                queue += [w, w-1]
+                visited |= {w, w-1}
+            case Tile.EMPTY:
+                move = True
+                visited.add(w)
+            case Tile.WALL:
+                move = False
+                break
+
+    if move:
+        for box in boxes[:0:-1]:
+            warehouse[box+dz] = warehouse[box]
+            warehouse[box] = Tile.EMPTY
+        warehouse[curr_z + dz] = Tile.ROBOT
+        warehouse[curr_z] = Tile.EMPTY
+        curr_z += dz
+  
+print(int(sum(100 * z.imag + z.real for z in warehouse if warehouse[z] == Tile.LBOX)))
