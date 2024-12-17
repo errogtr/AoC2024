@@ -10,14 +10,14 @@ def exec(registers):
     i = 0
     output = list()
     while i < len(intructions):
-        operator, operand = intructions[i:i+2]
+        operator, operand = intructions[i : i + 2]
         combo = registers.get(COMBO[operand], operand)
         match operator:
             case 0:  # adv
-                registers["A"] //= 2 ** combo
+                registers["A"] //= 2**combo
             case 1:  # bxl
                 registers["B"] ^= operand
-            case 2:  # bst 
+            case 2:  # bst
                 registers["B"] = combo % 8
             case 3:  # jnz
                 if registers["A"]:
@@ -30,9 +30,9 @@ def exec(registers):
             case 5:  # out
                 output.append(combo % 8)
             case 6:  # bdv
-                registers["B"] = registers["A"] // (2 ** combo)
+                registers["B"] = registers["A"] // (2**combo)
             case 7:  # cdv
-                registers["C"] = registers["A"] // (2 ** combo)
+                registers["C"] = registers["A"] // (2**combo)
         i += 2
     return output
 
@@ -49,11 +49,11 @@ print(",".join(map(str, exec(copy(r)))))
 
 # ==== PART 2 ====
 operand = next(y for x, y in batched(intructions, 2) if x == 0)
-factor = 2**COMBO[operand]
+factor = 2 ** COMBO[operand]
 i, n = 0, 0
 while True:
     output = exec(copy(dict(r, A=i)))
-    truncated = intructions[-n-1:]
+    truncated = intructions[-n - 1 :]
     if output == truncated:
         if n == len(intructions) - 1:
             break
