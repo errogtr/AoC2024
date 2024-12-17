@@ -95,11 +95,9 @@ for dz in dirs:
                 break
 
     if move:
-        for box in boxes[:0:-1]:
+        for box in reversed(boxes):
             warehouse[box+dz] = warehouse[box]
             warehouse[box] = Tile.EMPTY
-        warehouse[curr_z + dz] = Tile.ROBOT
-        warehouse[curr_z] = Tile.EMPTY
         curr_z += dz
   
 print(int(sum(100 * z.imag + z.real for z in warehouse if warehouse[z] == Tile.LBOX)))
