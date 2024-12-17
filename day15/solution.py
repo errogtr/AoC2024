@@ -44,12 +44,9 @@ curr_z = next(c for c, val in warehouse.items() if val == Tile.ROBOT)
 for dz in dirs:
     move = False
     w = curr_z
-    boxes = list()
     while True:
         w += dz
         match warehouse[w]:
-            case Tile.BOX:
-                boxes.append(w)
             case Tile.EMPTY:
                 move = True
                 break
@@ -57,8 +54,7 @@ for dz in dirs:
                 break
  
     if move:
-        if boxes:
-            warehouse[w] = Tile.BOX
+        warehouse[w] = Tile.BOX
         warehouse[curr_z + dz] = warehouse[curr_z]
         warehouse[curr_z] = Tile.EMPTY
         curr_z += dz
