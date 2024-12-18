@@ -5,7 +5,7 @@ import re
 DIRS = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
 
-def escape(corrupted, Lx, Ly):
+def escape(corrupted, nns, Lx, Ly):
     # Dijkstra from start to end
     start = 0, 0
     end = Lx, Ly
@@ -21,19 +21,19 @@ def escape(corrupted, Lx, Ly):
             break
 
         length += 1
-        for next_x, next_y in get_nn(curr_x, curr_y, corrupted, Lx, Ly):
-            if (next_x, next_y) not in visited and (next_x, next_y) not in corrupted:
-                heappush(queue, (length, next_x, next_y))
-                visited.add((next_x, next_y))
+        for x, y in nns[(curr_x, curr_y)]:
+            if (x, y) not in visited and (x, y) not in corrupted:
+                heappush(queue, (length, x, y))
+                visited.add((x, y))
     
     return length, end_reached
 
 
-def get_nn(x, y, corrupted, Lx, Ly):
+def get_nn(x, y, Lx, Ly):
     nn = list()
     for nn_dx, nn_dy in DIRS:
         nn_x, nn_y = x + nn_dx, y + nn_dy
-        if 0 <= nn_x <= Lx and 0 <= nn_y <= Ly and (nn_x, nn_y) not in corrupted:
+        if 0 <= nn_x <= Lx and 0 <= nn_y <= Ly:
             nn.append((nn_x, nn_y))
     return nn
 
@@ -43,8 +43,10 @@ with open("day18/data") as f:
 
 Lx, Ly = 70, 70
 
+nns = {(x, y): get_nn(x, y, Lx, Ly) for x in range(Lx+1) for y in range(Ly+1)}
+
 # ==== PART 1 ====
-length, _ = escape(corrupted[:1024], Lx, Ly)
+length, _ = escape(set(corrupted[:1024]), nns, Lx, Ly)
 print(length)
 
 
@@ -52,7 +54,7 @@ print(length)
 blocking = list()
 while True:
     blocking.append(corrupted.pop())
-    _, end_reached = escape(corrupted, Lx, Ly)
+    _, end_reached = escape(set(corrupted), nns, Lx, Ly)
     if end_reached:
         break
 
