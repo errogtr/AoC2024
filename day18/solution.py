@@ -42,6 +42,8 @@ with open("day18/data") as f:
     corrupted = [(int(x), int(y)) for x, y in re.findall(r"(\d+),(\d+)", f.read())]
 
 Lx, Ly = 70, 70
+first = 1024
+first = 1024
 
 nns = {(x, y): get_nn(x, y, Lx, Ly) for x in range(Lx+1) for y in range(Ly+1)}
 
@@ -52,10 +54,16 @@ print(length)
 
 # ==== PART 2 ====
 blocking = list()
-while True:
-    blocking.append(corrupted.pop())
-    _, end_reached = escape(set(corrupted), nns, Lx, Ly)
+a = first
+b = len(corrupted)
+k = (a + b) // 2
+while b - a > 1:
+    # blocking.append(corrupted.pop())
+    _, end_reached = escape(set(corrupted[:k]), nns, Lx, Ly)
     if end_reached:
-        break
+        a = k
+    else:
+        b = k
+    k = round((a + b) / 2)
 
-print(blocking[-1])
+print(corrupted[k])
