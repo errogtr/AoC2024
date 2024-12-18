@@ -25,7 +25,7 @@ def escape(corrupted, nns, Lx, Ly):
             if (x, y) not in visited and (x, y) not in corrupted:
                 heappush(queue, (length, x, y))
                 visited.add((x, y))
-    
+
     return length, end_reached
 
 
@@ -41,24 +41,25 @@ def get_nn(x, y, Lx, Ly):
 with open("day18/data") as f:
     corrupted = [(int(x), int(y)) for x, y in re.findall(r"(\d+),(\d+)", f.read())]
 
-Lx, Ly = 70, 70
-first = 1024
-first = 1024
+Lx, Ly = 70, 70  # 6, 6 in example
+first = 1024  # 12 in example
 
-nns = {(x, y): get_nn(x, y, Lx, Ly) for x in range(Lx+1) for y in range(Ly+1)}
+# pre-compute graph nearest neighbors
+nns = {(x, y): get_nn(x, y, Lx, Ly) for x in range(Lx + 1) for y in range(Ly + 1)}
+
 
 # ==== PART 1 ====
-length, _ = escape(set(corrupted[:1024]), nns, Lx, Ly)
+# passing a set of corrupted coordinates instead of list for efficiency
+length, _ = escape(set(corrupted[:first]), nns, Lx, Ly)
 print(length)
 
 
 # ==== PART 2 ====
-blocking = list()
+# binary search to get the first blocking coordinates
 a = first
 b = len(corrupted)
 k = (a + b) // 2
 while b - a > 1:
-    # blocking.append(corrupted.pop())
     _, end_reached = escape(set(corrupted[:k]), nns, Lx, Ly)
     if end_reached:
         a = k
