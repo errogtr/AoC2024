@@ -2,37 +2,39 @@ from functools import lru_cache
 
 
 @lru_cache
-def is_possible(towel, designs):
+def possible(towel, designs):
     if towel == "":
         return True
 
-    for design in designs.split(", "):
-        if towel.startswith(design) and is_possible(towel[len(design):], designs):
+    for design in designs:
+        if towel.startswith(design) and possible(towel[len(design):], designs):
             return True
+        
     return False
 
 
 @lru_cache
 def all_possible(towel, designs):
     if towel == "":
-        return 1
+        return True
 
-    possible = 0
-    for design in designs.split(", "):
+    possible = False
+    for design in designs:
         if towel.startswith(design):
             possible += all_possible(towel[len(design):], designs)
             
     return possible    
 
 
-
 with open("day19/data") as f:
     designs, towels = f.read().split("\n\n")
 
+single_designs = tuple(designs.split(", "))
+
 
 # ==== PART 1 ====
-print(sum(is_possible(towel, designs) for towel in towels.splitlines()))
+print(sum(possible(towel, single_designs) for towel in towels.splitlines()))
 
 
 # ==== PART 2 ====
-print(sum(all_possible(towel, designs) for towel in towels.splitlines()))
+print(sum(all_possible(towel, single_designs) for towel in towels.splitlines()))
