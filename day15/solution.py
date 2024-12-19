@@ -1,3 +1,6 @@
+from itertools import count
+
+
 class Tile:
     BOX = "O"
     LBOX = "["
@@ -32,34 +35,35 @@ def double_warehouse(grid):
     return warehouse
 
 
+def gps(warehouse, c):
+    return int(sum(100 * z.imag + z.real for z in warehouse if warehouse[z] == c))
+
+
 with open("day15/data") as f:
     grid, moves = f.read().split("\n\n")
 
 dirs = [DIRS[move] for move in moves if move != "\n"]
-
 
 # ==== PART 1 ====
 warehouse = get_warehouse(grid)
 curr_z = next(c for c, val in warehouse.items() if val == Tile.ROBOT)
 for dz in dirs:
     move = False
-    w = curr_z
-    while True:
-        w += dz
-        match warehouse[w]:
-            case Tile.EMPTY:
-                move = True
-                break
-            case Tile.WALL:
-                break
- 
+    for k in count(1):
+        w = curr_z + k * dz
+        if warehouse[w] == Tile.WALL:
+            break
+        if warehouse[w] == Tile.EMPTY:
+            move = True
+            break
+
     if move:
         warehouse[w] = Tile.BOX
         warehouse[curr_z + dz] = warehouse[curr_z]
         warehouse[curr_z] = Tile.EMPTY
         curr_z += dz
     
-print(int(sum(100 * z.imag + z.real for z in warehouse if warehouse[z] == Tile.BOX)))
+print(gps(warehouse, Tile.BOX))
 
 
 # ==== PART 2 ====
@@ -92,4 +96,4 @@ for dz in dirs:
             warehouse[box] = Tile.EMPTY
         curr_z += dz
   
-print(int(sum(100 * z.imag + z.real for z in warehouse if warehouse[z] == Tile.LBOX)))
+print(gps(warehouse, Tile.LBOX))
