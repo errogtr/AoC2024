@@ -1,0 +1,5 @@
+Day 6:
+    - try to optimize
+
+Day 7:
+    - implement in reverse order for efficiency
