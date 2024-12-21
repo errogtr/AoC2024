@@ -1,6 +1,3 @@
-from tqdm import tqdm
-
-
 DIRS = [-1j, 1, -1, 1j]
 
 
