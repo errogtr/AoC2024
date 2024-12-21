@@ -9,25 +9,20 @@ def manhattan(z, w):
 
 
 def get_neighborhood(z, min_pico, max_pico):
-    queue = [z]
-    visited = {z}
-    neighborhood = set()
-    while queue:
-        w = queue.pop(0)
-        for dw in DIRS:
-            next_w = w + dw
-            dist = manhattan(z, next_w)
-            if next_w not in visited and dist <= max_pico:
-                queue.append(next_w)
-                visited.add(next_w)
-                if dist >= min_pico:
-                    neighborhood.add(next_w)
-    return neighborhood
+    neighbors = set()
+    for r in range(min_pico, max_pico+1):
+        for k in range(r):
+            neighbors.add(z + k + (k-r) * 1j)
+            neighbors.add(z - k + r + k * 1j)
+            neighbors.add(z - k + (r-k) * 1j)
+            neighbors.add(z + k - r - k * 1j)
+    return neighbors
 
 
-def cheat(track_points, neighbors):
+def cheat(regular_track, neighbors):
     cheats = 0
-    for z, pico in tqdm(regular_track.items()):
+    track_points = set(regular_track)
+    for z, pico in regular_track.items():
         for w in neighbors[z] & track_points:
             save = regular_track[w] - regular_track[z] - manhattan(z, w)
             if regular_track[w] > pico and save >= 100:
@@ -60,9 +55,9 @@ while curr_z != end:
 
 # ==== PART 1 ====
 neighbors = {z: get_neighborhood(z, 2, 2) for z in regular_track}
-print(cheat(set(regular_track), neighbors))
+print(cheat(regular_track, neighbors))
 
 
 # ==== PART 2 ====
-neighbors = {z: get_neighborhood(z, 2, 20) for z in tqdm(regular_track)}
-print(cheat(set(regular_track), neighbors))
+neighbors = {z: get_neighborhood(z, 2, 20) for z in regular_track}
+print(cheat(regular_track, neighbors))
