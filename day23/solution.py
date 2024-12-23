@@ -1,6 +1,5 @@
 from collections import defaultdict
 from copy import copy
-from itertools import combinations
 
 
 links = defaultdict(list)
@@ -34,11 +33,10 @@ for u, links_u in links.items():
         if v in clique_u:
             continue
 
-        if clique_u <= set(links_v):
-            clique_u.add(v)
-        else:
+        if clique_u - set(links_v):
             continue
-
+        
+        clique_u.add(v)
         for w in links_v:
             links_w = links[w]
             if w not in clique_u and clique_u <= set(links_w):
