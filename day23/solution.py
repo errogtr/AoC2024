@@ -30,10 +30,7 @@ for u, links_u in links.items():
         v = queue.pop()
         links_v = links[v]
 
-        if v in clique_u:
-            continue
-
-        if clique_u - set(links_v):
+        if v in clique_u or clique_u - set(links_v):
             continue
         
         clique_u.add(v)
