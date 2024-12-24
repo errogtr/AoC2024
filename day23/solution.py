@@ -38,6 +38,6 @@ for u, links_u in links.items():
             links_w = links[w]
             if w not in clique_u and clique_u <= set(links_w):
                 clique_u.add(w)
-                queue += links[w]
+                queue += links_w
     largest_clique = max(clique_u, largest_clique, key=len)
 print(",".join(sorted(largest_clique)))
