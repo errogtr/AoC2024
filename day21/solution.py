@@ -87,20 +87,20 @@ def get_pad_paths(pad, nn_pad, pad_moves):
 
     return(keypad_paths)
 
-
-def expand(code, mappings, depth, max_depth):
+@cache
+def expand(code, depth, max_depth):
     if depth == max_depth:
-        return [code]
+        return {code}
     
-    complete_paths = list()
-    for x, y in pairwise("A" + code):
-        expanded_paths = list()
-        for possible_path in mappings[(x, y)]:
-            expanded_paths += expand(possible_path, mappings, depth + 1, max_depth)
+    complete_paths = set()
+    for pair in pairwise("A" + "".join(code)):
+        expanded_paths = set()
+        for possible_path in mappings[pair]:
+            expanded_paths |= expand(possible_path, depth + 1, max_depth)
         if complete_paths:
-            extended_complete_paths = list()
+            extended_complete_paths = set()
             for cp, ep in product(complete_paths, expanded_paths):
-                extended_complete_paths.append(cp + ep)
+                extended_complete_paths.add(cp + ep)
             complete_paths = extended_complete_paths
         else:
             complete_paths = expanded_paths
@@ -122,5 +122,7 @@ mappings = get_pad_paths(NUMPAD, NN_NUMPAD, NUMPAD_MOVES) | get_pad_paths(KEYPAD
 
 complexity = 0
 for code in codes:
-    complexity += int(code.strip("A")) * min(len(seq) for seq in expand(code, mappings, 0, 3))
+    complexity += int(code.strip("A")) * min(len(seq) for seq in expand(code, 0, 3))
 print(complexity)
+
+print(expand.cache_info())
