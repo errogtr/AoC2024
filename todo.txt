@@ -3,3 +3,6 @@ Day 6:
 
 Day 7:
     - implement in reverse order for efficiency
+
+Day 24:
+    - add explanation for part 2
