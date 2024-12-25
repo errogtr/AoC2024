@@ -16,17 +16,17 @@ NN_NUMPAD = {
 
 
 NUMPAD_MOVES = {
-    ("A", "0"): "<", ("A", "3"): "^",
-    ("0", "A"): ">", ("0", "2"): "^",
-    ("1", "2"): ">", ("1", "4"): "^",
-    ("2", "0"): "v", ("2", "1"): "<", ("2", "3"): ">", ("2", "5"): "^",
-    ("3", "A"): "v", ("3", "2"): "<", ("3", "6"): "^",
-    ("4", "1"): "v", ("4", "5"): ">", ("4", "7"): "^",
-    ("5", "2"): "v", ("5", "6"): ">", ("5", "4"): "<", ("5", "8"): "^",
-    ("6", "3"): "v", ("6", "5"): "<", ("6", "9"): "^",
-    ("7", "4"): "v", ("7", "8"): ">",
-    ("8", "7"): "<", ("8", "5"): "v", ("8", "9"): ">",
-    ("9", "6"): "v", ("9", "8"): "<",
+    ("A", "A"): "A", ("A", "0"): "<", ("A", "3"): "^",
+    ("0", "0"): "A", ("0", "A"): ">", ("0", "2"): "^",
+    ("1", "1"): "A", ("1", "2"): ">", ("1", "4"): "^",
+    ("2", "2"): "A", ("2", "0"): "v", ("2", "1"): "<", ("2", "3"): ">", ("2", "5"): "^",
+    ("3", "3"): "A", ("3", "A"): "v", ("3", "2"): "<", ("3", "6"): "^",
+    ("4", "4"): "A", ("4", "1"): "v", ("4", "5"): ">", ("4", "7"): "^",
+    ("5", "5"): "A", ("5", "2"): "v", ("5", "6"): ">", ("5", "4"): "<", ("5", "8"): "^",
+    ("6", "6"): "A", ("6", "3"): "v", ("6", "5"): "<", ("6", "9"): "^",
+    ("7", "7"): "A", ("7", "4"): "v", ("7", "8"): ">",
+    ("8", "8"): "A", ("8", "7"): "<", ("8", "5"): "v", ("8", "9"): ">",
+    ("9", "9"): "A", ("9", "6"): "v", ("9", "8"): "<",
 }
 
 
@@ -40,11 +40,11 @@ NN_KEYPAD = {
 
 
 KEYPAD_MOVES = {
-    ("A", ">"): "v", ("A", "^"): "<",
-    ("^", "A"): ">", ("^", "v"): "v",
-    (">", "A"): "^", (">", "v"): "<",
-    ("v", "<"): "<", ("v", "^"): "^", ("v", ">"): ">",
-    ("<", "v"): ">",
+    ("A", "A"): "A", ("A", ">"): "v", ("A", "^"): "<",
+    ("^", "^"): "A", ("^", "A"): ">", ("^", "v"): "v",
+    (">", ">"): "A", (">", "A"): "^", (">", "v"): "<",
+    ("v", "v"): "A", ("v", "<"): "<", ("v", "^"): "^", ("v", ">"): ">",
+    ("<", "<"): "A", ("<", "v"): ">",
 }
 
 
@@ -74,38 +74,34 @@ def get_paths(start, target, nn_map, max_length):
 def get_pad_paths(pad, nn_pad, pad_moves):
     pad_paths = dict()
     for start, target in product(pad, repeat=2):
-        if start != target:
-            max_length = manhattan(start, target, pad) + 1
-            pad_paths[(start, target)] = get_paths(start, target, nn_pad, max_length)
-        else:
-            pad_paths[(start, target)] = ["A"]
+        max_length = manhattan(start, target, pad) + 1
+        pad_paths[(start, target)] = get_paths(start, target, nn_pad, max_length)
 
     keypad_paths = defaultdict(list)
     for endpoints, paths in pad_paths.items():
         for path in paths:
-            keypad_path = ""
-            for x, y in pairwise(path):
-                keypad_path += pad_moves[(x, y)]
+            keypad_path = "".join(pad_moves[pair] for pair in pairwise(path))
             keypad_paths[endpoints].append(keypad_path + "A")
 
-    return(keypad_paths)
+    return keypad_paths
 
-@cache
-def expand(counts, depth, max_depth):
-    if depth == max_depth:
-        return sum(len(path) * count for path, count in counts)
 
-    paths_counter = Counter({pair: count for pair, count in counts})
+def complexity(code, keypads_num, mappings):
+    @cache
+    def expand(counts, depth, max_depth):
+        if depth == max_depth:
+            return sum(len(path) * count for path, count in counts)
 
-    length = 0    
-    for atomic_path, count in paths_counter.items():
-        expansions = list()
-        for pair in pairwise("A" + atomic_path):
-            expansions.append(mappings[pair])
-        expansions_counts = [Counter(exp * count) for exp in product(*expansions)]
-        length += min(expand(tuple(counter.items()), depth + 1, max_depth) for counter in expansions_counts)
+        length = 0    
+        for atomic_path, count in counts:
+            expansions = [mappings[pair] for pair in pairwise("A" + atomic_path)]
+            expansions_counts = [Counter(exp * count) for exp in product(*expansions)]
+            length += min(expand(tuple(c.items()), depth + 1, max_depth) for c in expansions_counts)
 
-    return length
+        return length
+    
+    min_length = expand(((code, 1),), 0, keypads_num)
+    return int(code.strip("A")) * min_length
 
 
 with open("day21/data") as f:
@@ -115,10 +111,8 @@ with open("day21/data") as f:
 mappings = get_pad_paths(NUMPAD, NN_NUMPAD, NUMPAD_MOVES) | get_pad_paths(KEYPAD, NN_KEYPAD, KEYPAD_MOVES)
 
 
-complexity = 0
-for code in codes:
-    keypad_expansions = [mappings[pair] for pair in pairwise("A" + code)]
-    keypad_counters = [Counter(p) for p in product(*keypad_expansions)]
-    min_length = min(expand(tuple(counter.items()), 1, 26) for counter in keypad_counters)
-    complexity += int(code.strip("A")) * min_length
-print(complexity)
+# ==== PART 1 ====
+print(sum(complexity(code, 3, mappings) for code in codes))
+
+# ==== PART 2 ====
+print(sum(complexity(code, 26, mappings) for code in codes))
